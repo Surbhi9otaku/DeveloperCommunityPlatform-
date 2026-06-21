@@ -1,14 +1,33 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import API from "@/services/api";
 import Navbar from "@/components/Navbar";
-import posts from "@/data/posts";
 import PostCard from "@/components/PostCard";
+import Link from "next/link";
 
 export default function Home() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await API.get("/posts");
+        setPosts(res.data);
+      } catch (err) {
+        console.log("Error fetching posts:", err);
+      }
+    };
+
+    void fetchPosts();
+  }, []);
+
   return (
     <>
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 py-16">
-        {/* Hero Section */}
+        {/* HERO SECTION */}
         <section className="text-center">
           <h1 className="text-5xl font-bold text-gray-900">
             Share Your Knowledge
@@ -25,21 +44,28 @@ export default function Home() {
               Start Reading
             </button>
 
-            <button className="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50">
+            <Link
+              href="/create"
+              className="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50"
+            >
               Create Post
-            </button>
+            </Link>
           </div>
         </section>
 
-        {/* Latest Posts Section */}
+        {/* POSTS SECTION */}
         <section className="mt-20">
           <h2 className="text-3xl font-bold mb-8">Latest Posts</h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((item) => (
-              <PostCard key={item.id} post={item} />
-            ))}
-          </div>
+          {posts.length === 0 ? (
+            <p className="text-gray-500">No posts found...</p>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {posts.map((item) => (
+                <PostCard key={item._id} post={item} />
+              ))}
+            </div>
+          )}
         </section>
       </main>
     </>
